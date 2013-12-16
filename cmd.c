@@ -644,13 +644,17 @@ void VerificIN()
 			ReadEprom(smsc_nr, 360);
 			ReadEprom(nrtel, 18);
 			in1 = 0;
-			ReadEprom(buffer, 18 * 2);
-			if (strlen(buffer) != 0)
-				uart_sendsms(smsc_nr, nrtel, buffer);
+			//ReadEprom(buffer, 18 * 2);
+			//if (strlen(buffer) != 0)
+			uart_sendsms(smsc_nr, nrtel, "curent OFF");
 		}
 	}
 	else
+	{
+		if(in1 == 0)
+			uart_sendsms(smsc_nr, nrtel, "curent ON");
 		in1 = 1;
+	}
 
 	//if (digitalRead(inD2) == LOW && in2)
 	if ((PINB & (1 << PB1)) == 0)
