@@ -128,7 +128,7 @@ int8_t FON_INIT()
 }
 
 //write data on eeprom
-uint8_t CfgCmd(char *inbuffer)
+int CfgCmd(char *inbuffer)
 {
 	int adresa = 18;
 	//char *scriu;

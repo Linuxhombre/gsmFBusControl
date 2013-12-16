@@ -4,7 +4,7 @@
  *  Created on: Apr 14, 2013
  *      Author: popai
  *
- * Fuse bits:
+ * Fuse bits: oscilator extern
  * BootLock12 	setat
  * BootLock11 	setat
  * BOOTSZ0 		setat
@@ -69,7 +69,6 @@ void loop()
 		return;
 	}
 
-
 	if ((PINC & (1 << PC5)) == 0)
 	{
 		cfgpc = 1;
@@ -84,14 +83,16 @@ void loop()
 	while (1)
 	{
 		_delay_ms(300);
-		/*
-		 if (contor == 500)
-		 {
-		 contor = 0;
-		 BateryFull();
-		 }
-		 ++contor;
-		 */
+
+/*
+		if (contor == 100)
+		{
+			contor = 0;
+			//BateryFull();
+			fbus_ack();
+		}
+		++contor;
+*/
 
 		if (cfgpc)
 		{
@@ -111,15 +112,17 @@ void loop()
 				}
 				else
 				{
-					int8_t adresa = CfgCmd(read);
+					int adresa = CfgCmd(read);
 					if (adresa)
 					{
-						sprintf_P(read, PSTR("%d: OK%c%c"), adresa, 0x0D, 0x0A);
+						sprintf_P(read, PSTR(" %d: OK%c%c"), adresa, 0x0D,
+								0x0A);
 						UWriteString(read);
 					}
 					else
 					{
-						sprintf_P(read, PSTR("%d: ERROR%c%c"), adresa, 0x0D, 0x0A);
+						sprintf_P(read, PSTR(" %d: ERROR%c%c"), adresa, 0x0D,
+								0x0A);
 						UWriteString(read);
 
 					}
@@ -142,30 +145,16 @@ void loop()
 		else
 		{
 			VerificIN();
-			//UWriteString("bau");
-			/*
-			 uart_sendsms("+40744946000", "+40745183841", "alarma port1");
-			 SerialRead(read);
-			 //delay_ms(20);
-			 if (strlen(read) != 0)
-			 {
-			 UWriteString(read);
-			 UWriteData(0x0D);
-			 UWriteData(0x0A);
-			 }
-
-			 //uart_sendsms("+40745183841", "Hi All. This message was sent through F-Bus. Cool!!");
-			 */
 			ftype = fbus_readframe(teln, read);
 			if (ftype == FRAME_SMS_RECV)
 			{
-				PORTD |= (1 << PD2);
 				Comand(teln, read);
 				//Comand(pfonnr, "test 1");
 				//_delay_ms(250);
 			}
 			*read = 0x00;
 			*teln = 0x00;
+			UFlushBuffer();
 		}
 	}
 }

@@ -9,7 +9,7 @@
 #define CMD_H_
 #define DEBUG 0
 
-uint8_t CfgCmd(char *buffer);
+int CfgCmd(char *buffer);
 void ReadEprom(char* str_citit, int const adresa);
 void DellEprom();
 //void DellPass();
