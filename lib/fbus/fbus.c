@@ -132,7 +132,8 @@ void uart_sendsms(const char *smsc_num, const char *num, const char *ascii)
 	//sendack(0x02, 0x02);
 
 	uint8_t len = 0;
-	PORTB = (1 << PB4);
+	PORTB |= (1 << PB4);
+	PORTB &= ~(1 << PB5);
 	buf[len++] = 0x00;
 	buf[len++] = 0x01;
 	buf[len++] = 0x00; //SMS frame header
@@ -226,6 +227,22 @@ void uart_sendsms(const char *smsc_num, const char *num, const char *ascii)
 
 }
 
+/**
+ * @breaf mentain fbus comunication
+ *
+ * @param no parametrs
+ */
+void fbus_ack()
+{
+	fbus_init();
+	uint8_t init_sms[] =
+	{ 0x00, 0x01, 0x00, 0x07, 0x02, 0x01, 0x01, 0x64, 0x01, 0x47 };
+	sendframe(0x02, init_sms, 0x0a);
+	sendack(0x14, 0x00);
+
+}
+
+
 void sendack(uint8_t type, uint8_t seqnum)
 {
 	uint8_t buf[2];
@@ -238,143 +255,108 @@ void sendack(uint8_t type, uint8_t seqnum)
 
 enum fbus_frametype fbus_readframe(char *phonenum_buf, char *msg_buf)
 {
+
 	char buf[RECEIVE_BUFF_SIZE];
 	memset(buf, 0, sizeof(buf));
-	//_delay_ms(1000);
-	/*
-	 char buf[] = {0x1E,0x0C,0x00,0x02,0x00,0x31,0x01,0x08,0x00,0x10,0x02,0x02,0x00,0x07,0x91,0x04
-	 ,0x47,0x94,0x64,0x00,0xF0,0x00,0x11,0x35,0xF4,0x04,0x00,0x00,0x05,0x0B,0x91,0x04
-	 ,0x47,0x15,0x38,0x48,0xF1,0xFF,0xFF,0xFF,0xFF,0x31,0x80,0x32,0x61,0x33,0x31,0x21
-	 ,0x61,0x72,0x98,0x56,0x03,0x01,0x44,0x00,0xCE,0xE5};
-	 */
 	SerialRead(buf, RECEIVE_BUFF_SIZE);
-	//_delay_ms(1000);
-	//UWriteData(0x0D);
-	//UWriteData(0x0A);
-	//UWriteString(buf);
 
-	if (buf[0] == 0x1e && buf[1] == 0x0c && buf[2] == 0x00)
+	char *start;
+	start = buf;
+	uint8_t i = strlen(buf) - 10;
+	while (i--)
 	{
-		//UWriteString(" DA ");
-		PORTB = (1 << PB4);
-		uint8_t type = buf[3];
-		uint8_t len = buf[5];
-		if (len > 128)
+		if (start[0] == 0x1e && start[1] == 0x0c && start[2] == 0x00)
 		{
-			PORTB |= (1 << PB5);
-			return FRAME_UNKNOWN;
-		}
-		uint8_t seq_no = buf[len - 1];
-		sendack(type, seq_no & 0x0f);
-		//sendack(0x14, seq_no & 0x0f);
-		//fbus_readack();
-		//_delay_ms(300);
-		if (type == TYPE_SMS && buf[9] == 0x10)
-		{
-			unbcd_phonenum(buf + 29, phonenum_buf);
-			unpack7_msg(buf + 48, buf[28], msg_buf);
-			fbus_delete_sms(buf[10], buf[11]);
-			PORTB &= ~(1 << PB4);
-			return FRAME_SMS_RECV;
-		}
-		else if (type == TYPE_SMS && buf[9] == 0x02)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_SMS_SENT;
-		}
-		else if (type == TYPE_SMS && buf[9] == 0x09)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_SMS_MGMT;
-		}
-		else if (type == TYPE_SMS && buf[9] == 0x03)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_SMS_ERROR;
-		}
-		else if (type == TYPE_ACK)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_ACK;
-		}
-		else if (type == TYPE_ID)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_ID;
-		}
-		else if (type == TYPE_NET_STATUS)
-		{
-			PORTB &= ~(1 << PB4);
-			return FRAME_NET_STATUS;
+			PORTB |= (1 << PB4);
+			PORTB &= ~(1 << PB5);
+
+			if (start[3] == TYPE_SMS)
+			{
+				if (start[5] > 128)
+				{
+					PORTB |= (1 << PB5);
+					return FRAME_UNKNOWN;
+				}
+				uint8_t seq_no = start[start[5] - 1];
+				sendack(TYPE_SMS, seq_no & 0x0f);
+				if (start[9] == 0x10)
+				{
+					unbcd_phonenum(start + 29, phonenum_buf);
+					unpack7_msg(start + 48, start[28], msg_buf);
+					fbus_delete_sms(start[10], start[11]);
+					PORTB &= ~(1 << PB4);
+					return FRAME_SMS_RECV;
+				}
+				else start++;
+			}
+		else
+				start++;
 		}
 		else
-		{
-			PORTB &= ~(1 << PB4);
-			if (strlen(buf) != 0)
-				PORTB |= (1 << PB5);
-			return FRAME_UNKNOWN;
-		}
+			start++;
 	}
-	PORTB &= ~(1 << PB4);
 	if (strlen(buf) != 0)
-		PORTB |= (1 << PB5);
+		PORTB |= (1 << PB5);	//eror
 	return FRAME_UNKNOWN;
 }
 
-enum fbus_frametype fbus_readack()
-{
-	//_delay_ms(1000);
-	char buf[64];
-	memset(buf, 0, sizeof(buf));
-	SerialRead(buf, 64);
 
-	if (buf[0] == 0x1e && buf[1] == 0x0c && buf[2] == 0x00)
+enum fbus_frametype fbus_readack(char *smsc_nr)
+{
+
+	char buf[RECEIVE_BUFF_SIZE];
+	memset(buf, 0, sizeof(buf));
+	SerialRead(buf, RECEIVE_BUFF_SIZE);
+
+	char *start;
+	start = buf;
+	uint8_t i = strlen(buf) - 10;
+	while (i--)
 	{
-		//UWriteString(" DA ");
-		uint8_t type = buf[3];
-		uint8_t len = buf[5];
-		if (len > 128)
+		if (start[0] == 0x1e && start[1] == 0x0c && start[2] == 0x00)
 		{
-			PORTB |= (1 << PB5);
-			return FRAME_UNKNOWN;
-		}
-		if (type == TYPE_SMS && buf[9] == 0x10)
-		{
-			return FRAME_SMS_RECV;
-		}
-		else if (type == TYPE_SMS && buf[9] == 0x02)
-		{
-			return FRAME_SMS_SENT;
-		}
-		else if (type == TYPE_SMS_MGMT && buf[9] == 0x09)
-		{
-			return FRAME_SMS_MGMT;
-		}
-		else if (type == TYPE_SMS && buf[9] == 0x03)
-		{
-			return FRAME_SMS_ERROR;
-		}
-		else if (type == TYPE_ACK)
-		{
-			return FRAME_ACK;
-		}
-		else if (type == TYPE_ID)
-		{
-			return FRAME_ID;
-		}
-		else if (type == TYPE_NET_STATUS)
-		{
-			return FRAME_NET_STATUS;
+			PORTB |= (1 << PB4);
+			PORTB &= ~(1 << PB5);
+
+			if (start[3] == TYPE_SMS)
+			{
+				if (start[9] == 0x10)
+				{
+					return FRAME_SMS_RECV;
+				}
+				else if (start[9] == 0x02)
+				{
+					return FRAME_SMS_SENT;
+				}
+				else if (start[9] == 0x09)
+				{
+					return FRAME_SMS_MGMT;
+				}
+				else if (start[9] == 0x03)
+				{
+					return FRAME_SMS_ERROR;
+				}
+			}
+			else if (start[9] == TYPE_ACK)
+			{
+				return FRAME_ACK;
+			}
+			else if (start[9] == TYPE_ID)
+			{
+				return FRAME_ID;
+			}
+			else if (start[9] == TYPE_NET_STATUS)
+			{
+				return FRAME_NET_STATUS;
+			}
+			else
+				start++;
 		}
 		else
-		{
-			if (strlen(buf) != 0)
-				PORTB |= (1 << PB5);
-			return FRAME_UNKNOWN;
-		}
+			start++;
 	}
 	if (strlen(buf) != 0)
-		PORTB |= (1 << PB5);
+		PORTB |= (1 << PB5);	//eror
 	return FRAME_UNKNOWN;
 
 }
@@ -465,7 +447,7 @@ void BatteryState()
 			//printf("Battery     %s Percent\r\n", itoa((int) Battery, s1, 10));
 			if (Battery == 98)
 			{
-				PORTD = (1 << PD7);
+				PORTD |= (1 << PD7);
 				return;
 			}
 
