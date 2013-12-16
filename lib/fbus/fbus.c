@@ -269,15 +269,17 @@ enum fbus_frametype fbus_readframe(char *phonenum_buf, char *msg_buf)
 		{
 			PORTB |= (1 << PB4);
 			PORTB &= ~(1 << PB5);
+			uint8_t type = buf[3];
+			uint8_t len = buf[5];
 
-			if (start[3] == TYPE_SMS)
+			if (type == TYPE_SMS)
 			{
-				if (start[5] > 128)
+				if (len > 128)
 				{
 					PORTB |= (1 << PB5);
 					return FRAME_UNKNOWN;
 				}
-				uint8_t seq_no = start[start[5] - 1];
+				uint8_t seq_no = start[len - 1];
 				sendack(TYPE_SMS, seq_no & 0x0f);
 				if (start[9] == 0x10)
 				{
@@ -295,8 +297,11 @@ enum fbus_frametype fbus_readframe(char *phonenum_buf, char *msg_buf)
 		else
 			start++;
 	}
+/*
 	if (strlen(buf) != 0)
 		PORTB |= (1 << PB5);	//eror
+*/
+	PORTB &= ~(1 << PB4);
 	return FRAME_UNKNOWN;
 }
 
