@@ -304,9 +304,9 @@ enum fbus_frametype fbus_readframe(char *phonenum_buf, char *msg_buf)
 enum fbus_frametype fbus_readack(char *smsc_nr)
 {
 
-	char buf[RECEIVE_BUFF_SIZE];
+	char buf[64];
 	memset(buf, 0, sizeof(buf));
-	SerialRead(buf, RECEIVE_BUFF_SIZE);
+	SerialRead(buf, 64);
 
 	char *start;
 	start = buf;
@@ -315,42 +315,42 @@ enum fbus_frametype fbus_readack(char *smsc_nr)
 	{
 		if (start[0] == 0x1e && start[1] == 0x0c && start[2] == 0x00)
 		{
-			PORTB |= (1 << PB4);
-			PORTB &= ~(1 << PB5);
-
-			if (start[3] == TYPE_SMS)
-			{
-				if (start[9] == 0x10)
-				{
-					return FRAME_SMS_RECV;
-				}
-				else if (start[9] == 0x02)
-				{
-					return FRAME_SMS_SENT;
-				}
-				else if (start[9] == 0x09)
-				{
-					return FRAME_SMS_MGMT;
-				}
-				else if (start[9] == 0x03)
-				{
-					return FRAME_SMS_ERROR;
-				}
-			}
-			else if (start[9] == TYPE_ACK)
-			{
-				return FRAME_ACK;
-			}
-			else if (start[9] == TYPE_ID)
-			{
-				return FRAME_ID;
-			}
-			else if (start[9] == TYPE_NET_STATUS)
-			{
-				return FRAME_NET_STATUS;
-			}
-			else
-				start++;
+            //UWriteString(" DA ");
+            uint8_t type = start[3];
+            uint8_t len = start[5];
+            if (len > 128)
+            {
+                    PORTB |= (1 << PB5);
+                    return FRAME_UNKNOWN;
+            }
+            if (type == TYPE_SMS && start[9] == 0x10)
+            {
+                    return FRAME_SMS_RECV;
+            }
+            else if (type == TYPE_SMS && start[9] == 0x02)
+            {
+                    return FRAME_SMS_SENT;
+            }
+            else if (type == TYPE_SMS_MGMT && start[9] == 0x09)
+            {
+                    return FRAME_SMS_MGMT;
+            }
+            else if (type == TYPE_SMS && start[9] == 0x03)
+            {
+                    return FRAME_SMS_ERROR;
+            }
+            else if (type == TYPE_ACK)
+            {
+                    return FRAME_ACK;
+            }
+            else if (type == TYPE_ID)
+            {
+                    return FRAME_ID;
+            }
+            else if (type == TYPE_NET_STATUS)
+            {
+                    return FRAME_NET_STATUS;
+            }
 		}
 		else
 			start++;
