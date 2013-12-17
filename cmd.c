@@ -195,7 +195,7 @@ void SetPort()
 {
 	int i;
 	int8_t byte;
-	for (i = 379; i < 383; i++)
+	for (i = 379; i < 384; i++)
 	{
 		byte = eeprom_read_byte((uint8_t*) i);
 		switch (i)
@@ -583,9 +583,9 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	int tmp, tmp1, tmp2;
 
 	tmp = Thermistor(PC0);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp1 = Thermistor(PC0);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp2 = Thermistor(PC0);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 
@@ -597,9 +597,9 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	}
 
 	tmp = Thermistor(PC1);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp1 = Thermistor(PC1);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp2 = Thermistor(PC1);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 
@@ -611,9 +611,9 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	}
 
 	tmp = Thermistor(PC2);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp1 = Thermistor(PC2);
-	_delay_ms(10);
+	_delay_ms(30);
 	tmp2 = Thermistor(PC2);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 

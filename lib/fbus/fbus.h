@@ -25,6 +25,7 @@ enum fbus_frametype fbus_readack();
 void sendack(uint8_t type, uint8_t seqnum);
 void fbus_getsmsc(char *smsc_nr);
 void fbus_init(void);
+void fbus_ack();
 
 enum fbus_frametype {
     FRAME_READ_TIMEOUT,
