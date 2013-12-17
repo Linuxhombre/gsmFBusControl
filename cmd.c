@@ -262,7 +262,7 @@ void Comand(char *nrtel, char *inmsg)
 	if (strcmp(nrtel, buffer) == 0)
 	{
 
-		ReadEprom(buffer, 18 * 6);
+		ReadEprom(buffer, 108);	//18 * 6
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD1, LOW);
@@ -272,7 +272,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 7);
+		ReadEprom(buffer, 126);	//18 * 7
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD1, HIGH);
@@ -282,7 +282,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 8);
+		ReadEprom(buffer, 144);	//18 * 8
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD2, LOW);
@@ -292,7 +292,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 9);
+		ReadEprom(buffer, 162);	//18 * 9
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD2, HIGH);
@@ -302,7 +302,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 10);
+		ReadEprom(buffer, 180);	//18 * 10
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD3, LOW);
@@ -312,7 +312,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 11);
+		ReadEprom(buffer, 198);	//18 * 11
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD3, HIGH);
@@ -322,7 +322,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 12);
+		ReadEprom(buffer, 216);	//18 * 12
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD4, LOW);
@@ -332,7 +332,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 13);
+		ReadEprom(buffer, 234);	//18 * 13
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD4, HIGH);
@@ -342,7 +342,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 14);
+		ReadEprom(buffer, 252);	//18 * 14
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD5, LOW);
@@ -352,7 +352,7 @@ void Comand(char *nrtel, char *inmsg)
 			return;
 		}
 
-		ReadEprom(buffer, 18 * 15);
+		ReadEprom(buffer, 270);	//18 * 15
 		if (strcasecmp(buffer, inmsg) == 0)
 		{
 			//digitalWrite(outD5, HIGH);
@@ -392,7 +392,7 @@ void Comand(char *nrtel, char *inmsg)
 	}
 	else
 	{
-		ReadEprom(buffer, 18 * 19);
+		ReadEprom(buffer, 342);	//18 * 19
 		if (strcmp(buffer, inmsg) == 0)
 		{
 			eeprom_write_block(nrtel, (int*) 18, 18);
@@ -589,7 +589,7 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	tmp2 = Thermistor(PC0);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 
-	ReadEprom(buffer, 18 * 16);
+	ReadEprom(buffer, 288); //18 * 16
 	if (strlen(buffer) != 0)
 	{
 		sprintf(tmpe, "%s: %d %s", buffer, tmp, "C\r\n");
@@ -603,7 +603,7 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	tmp2 = Thermistor(PC1);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 
-	ReadEprom(buffer, 18 * 17);
+	ReadEprom(buffer, 306); //18 * 17
 	if (strlen(buffer) != 0)
 	{
 		sprintf(tmpe, "%s: %d %s", buffer, tmp, "C\r\n");
@@ -617,7 +617,7 @@ static void StareTMP(char *smsc_nr, char *nrtel)
 	tmp2 = Thermistor(PC2);
 	tmp = (tmp + tmp1 + tmp2) / 3;
 
-	ReadEprom(buffer, 18 * 18);
+	ReadEprom(buffer, 324); //18 * 18
 	if (strlen(buffer) != 0)
 	{
 		sprintf(tmpe, "%s: %d %c", buffer, tmp, 'C');
@@ -644,7 +644,7 @@ void VerificIN()
 			ReadEprom(smsc_nr, 360);
 			ReadEprom(nrtel, 18);
 			in1 = 0;
-			ReadEprom(buffer, 18 * 2);
+			ReadEprom(buffer, 36);	//18*2
 			if (strlen(buffer) != 0)
 				uart_sendsms(smsc_nr, nrtel, buffer);
 		}
@@ -652,7 +652,6 @@ void VerificIN()
 	else
 		in1 = 1;
 
-	//if (digitalRead(inD2) == LOW && in2)
 	if ((PINB & (1 << PB1)) == 0)
 	{
 		if (in2)
@@ -660,7 +659,7 @@ void VerificIN()
 			ReadEprom(smsc_nr, 360);
 			ReadEprom(nrtel, 18);
 			in2 = 0;
-			ReadEprom(buffer, 18 * 3);
+			ReadEprom(buffer, 54);	//18*3
 			if (strlen(buffer) != 0)
 				uart_sendsms(smsc_nr, nrtel, buffer);
 		}
@@ -668,7 +667,6 @@ void VerificIN()
 	else
 		in2 = 1;
 
-	//if (digitalRead(inD3) == LOW && in3)
 	if ((PINB & (1 << PB2)) == 0)
 	{
 		if (in3)
@@ -676,7 +674,7 @@ void VerificIN()
 			ReadEprom(smsc_nr, 360);
 			ReadEprom(nrtel, 18);
 			in3 = 0;
-			ReadEprom(buffer, 18 * 4);
+			ReadEprom(buffer, 72);	//18 * 4
 			if (strlen(buffer) != 0)
 				uart_sendsms(smsc_nr, nrtel, buffer);
 		}
@@ -684,7 +682,6 @@ void VerificIN()
 	else
 		in3 = 1;
 
-	//if (digitalRead(inD4) == LOW && in4)
 	if ((PINB & (1 << PB3)) == 0)
 	{
 		if (in4)
@@ -692,13 +689,12 @@ void VerificIN()
 			ReadEprom(smsc_nr, 360);
 			ReadEprom(nrtel, 18);
 			in4 = 0;
-			ReadEprom(buffer, 18 * 5);
+			ReadEprom(buffer, 90);	//18*5
 			if (strlen(buffer) != 0)
 				uart_sendsms(smsc_nr, nrtel, buffer);
 		}
 	}
 	else
 		in4 = 1;
-
 }
 
