@@ -65,6 +65,9 @@
 	<storageModule moduleId="refreshScope"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1574132186;de.innot.avreclipse.configuration.app.release.1574132186.;de.innot.avreclipse.tool.compiler.winavr.app.release.1171335198;de.innot.avreclipse.compiler.winavr.input.803881014">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.2122497181;de.innot.avreclipse.configuration.app.release.2122497181.;de.innot.avreclipse.tool.compiler.winavr.app.release.136915488;de.innot.avreclipse.compiler.winavr.input.1582697804">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
